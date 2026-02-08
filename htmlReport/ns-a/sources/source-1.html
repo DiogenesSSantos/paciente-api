@@ -1,0 +1,182 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PacienteService</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.git.devdioge.paciente_api.service</a>
+</div>
+
+<h1>Coverage Summary for Class: PacienteService (com.git.devdioge.paciente_api.service)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">PacienteService</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (23/23)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.git.devdioge.paciente_api.service;
+&nbsp;
+&nbsp;import com.git.devdioge.paciente_api.exception.PacienteNaoLocalizadoException;
+&nbsp;import com.git.devdioge.paciente_api.model.Paciente;
+&nbsp;import com.git.devdioge.paciente_api.repository.IPacienteRepository;
+&nbsp;import lombok.extern.slf4j.Slf4j;
+&nbsp;import org.springframework.stereotype.Service;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;
+<b class="fc">&nbsp;@Slf4j</b>
+&nbsp;@Service
+&nbsp;public class PacienteService implements IPacienteService {
+&nbsp;
+&nbsp;    private IPacienteRepository repository;
+&nbsp;
+<b class="fc">&nbsp;    public PacienteService(IPacienteRepository pacienteRepository) {</b>
+<b class="fc">&nbsp;        this.repository = pacienteRepository;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;Paciente&gt; buscarTodos() {
+<b class="fc">&nbsp;        return repository.buscarTodos();</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public List&lt;Paciente&gt; buscarPorNome(String nome) {
+<b class="fc">&nbsp;        List&lt;Paciente&gt; pacienteLista = repository.buscarPorNome(nome);</b>
+&nbsp;
+<b class="fc">&nbsp;        return pacienteLista;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Paciente buscarPorId(Long id) {
+<b class="fc">&nbsp;        return repository.buscarPorId(id).</b>
+<b class="fc">&nbsp;                orElseThrow(() -&gt; new PacienteNaoLocalizadoException(</b>
+&nbsp;                        &quot;Paciente de id [&quot; + id + &quot;] não localizado no banco de dados &quot;));
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Paciente buscarPorCodigo(String codigo) {
+<b class="fc">&nbsp;        return repository.buscarPorCodigo(codigo).</b>
+<b class="fc">&nbsp;                orElseThrow(() -&gt; new PacienteNaoLocalizadoException(</b>
+&nbsp;                        &quot;Paciente de codigo [&quot; + codigo + &quot;] não localizado no banco de dados&quot;));
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Paciente salvar(Paciente paciente) {
+<b class="fc">&nbsp;        return repository.save(paciente);</b>
+&nbsp;    }
+&nbsp;
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public Paciente atualizar(String codigo, Paciente paciente) {
+<b class="fc">&nbsp;        var pacienteExistente = buscarPorCodigo(codigo);</b>
+<b class="fc">&nbsp;        pacienteExistente = atualizarAtributosPaciente(pacienteExistente, paciente);</b>
+<b class="fc">&nbsp;        pacienteExistente = salvar(pacienteExistente);</b>
+<b class="fc">&nbsp;        return pacienteExistente;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;    @Override
+&nbsp;    public void deletarPorCodigo(String codigoPacienteBD) {
+<b class="fc">&nbsp;        repository.buscarPorCodigo(codigoPacienteBD).ifPresentOrElse(</b>
+<b class="fc">&nbsp;                paciente -&gt; repository.delete(paciente), () -&gt; log.warn(&quot;Não existe no banco de dados.&quot;)</b>
+&nbsp;        );
+&nbsp;    }
+&nbsp;
+&nbsp;    private Paciente atualizarAtributosPaciente(Paciente pacienteAntigo, Paciente pacienteAtualizado) {
+<b class="fc">&nbsp;        pacienteAntigo.setNome(pacienteAtualizado.getNome());</b>
+<b class="fc">&nbsp;        pacienteAntigo.setNumero(pacienteAtualizado.getNumero());</b>
+<b class="fc">&nbsp;        pacienteAntigo.setBairro(pacienteAtualizado.getBairro());</b>
+<b class="fc">&nbsp;        pacienteAntigo.setDataConsulta(pacienteAtualizado.getDataConsulta());</b>
+<b class="fc">&nbsp;        pacienteAntigo.setStatus(pacienteAtualizado.getStatus());</b>
+<b class="fc">&nbsp;        return pacienteAntigo;</b>
+&nbsp;    }
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-02-01 15:25</div>
+</div>
+</body>
+</html>

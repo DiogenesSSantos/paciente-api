@@ -1,0 +1,112 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>Coverage Report > PacienteControllerSwaggerDocs</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.git.devdioge.paciente_api.docs</a>
+</div>
+
+<h1>Coverage Summary for Class: PacienteControllerSwaggerDocs (com.git.devdioge.paciente_api.docs)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+</tr>
+<tr>
+  <td class="name">PacienteControllerSwaggerDocs</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package com.git.devdioge.paciente_api.docs;
+&nbsp;
+&nbsp;
+&nbsp;import com.git.devdioge.paciente_api.controller.dto.PacienteRequestDTO;
+&nbsp;import com.git.devdioge.paciente_api.controller.dto.PacienteResponseDTO;
+&nbsp;import io.swagger.v3.oas.annotations.Operation;
+&nbsp;import io.swagger.v3.oas.annotations.media.Content;
+&nbsp;import io.swagger.v3.oas.annotations.media.Schema;
+&nbsp;import io.swagger.v3.oas.annotations.responses.ApiResponse;
+&nbsp;import io.swagger.v3.oas.annotations.tags.Tag;
+&nbsp;import org.springframework.http.ResponseEntity;
+&nbsp;
+&nbsp;import java.util.List;
+&nbsp;
+&nbsp;@Tag(name = &quot;API-PACIENTE&quot;, description = &quot;Api para consumir recursos de pacientes.&quot;)
+&nbsp;public interface PacienteControllerSwaggerDocs {
+&nbsp;
+&nbsp;    public ResponseEntity&lt;PacienteResponseDTO&gt; salvar(PacienteRequestDTO pacienteRequestPostDTO);
+&nbsp;
+&nbsp;
+&nbsp;    @Operation(summary = &quot;Buscar todos pacientes no banco de dados.&quot;,
+&nbsp;            description = &quot;Retorna uma lista de JSON com todos pacientes registrado no banco de dados ou uma lista vazia.&quot;,
+&nbsp;            responses = {
+&nbsp;                    @ApiResponse(description = &quot;Sucesso&quot;, responseCode = &quot;200&quot;,
+&nbsp;                            content = @Content(
+&nbsp;                                    mediaType = &quot;application/json&quot;,
+&nbsp;                                    schema = @Schema(type = &quot;array&quot;, implementation = PacienteResponseDTO.class)
+&nbsp;                            )
+&nbsp;                    ),
+&nbsp;                    @ApiResponse(description = &quot;Internal error&quot;, responseCode = &quot;500&quot;, content = @Content)
+&nbsp;            }
+&nbsp;    )
+&nbsp;    public ResponseEntity&lt;List&lt;PacienteResponseDTO&gt;&gt; buscarTodos();
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;    public ResponseEntity&lt;PacienteResponseDTO&gt; buscarPorId(Long id);
+&nbsp;
+&nbsp;
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2026-02-01 15:25</div>
+</div>
+</body>
+</html>
