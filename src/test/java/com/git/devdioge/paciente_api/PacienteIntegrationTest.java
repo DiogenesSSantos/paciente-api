@@ -30,7 +30,7 @@ public class PacienteIntegrationTest {
 
     @BeforeAll
     void setup() {
-        RestAssured.baseURI = "https://api-service-paciente.azurewebsites.net";
+        RestAssured.baseURI = "https://api-service-paciente-atdph2a4h7a7e6gz.brazilsouth-01.azurewebsites.net";
         mapper = new ObjectMapper();
     }
 
