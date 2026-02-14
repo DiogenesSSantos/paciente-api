@@ -7,7 +7,6 @@ import com.git.devdioge.paciente_api.exceptionhandler.Problema;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import io.swagger.v3.core.util.Json;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.*;
@@ -31,8 +30,7 @@ public class PacienteIntegrationTest {
 
     @BeforeAll
     void setup() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = 8081;
+        RestAssured.baseURI = "https://api-service-paciente.azurewebsites.net";
         mapper = new ObjectMapper();
     }
 
