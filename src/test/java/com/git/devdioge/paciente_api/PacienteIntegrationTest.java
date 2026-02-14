@@ -96,7 +96,7 @@ public class PacienteIntegrationTest {
     @Test
     @Order(3)
     void testQuandoBuscarPorCodigoExistente_DeveRetornarOPaciente_EStatusCode200() {
-        String codigoValido = "7ac6865b-397d-4038-8fa8-36855b5de619";
+        String codigoValido = "fc031157-a74c-4505-ab99-31384a6b1352";
         PacienteResponseDTO PacienteResponseDTO;
         int statusCode200 = 200;
 
@@ -435,7 +435,7 @@ public class PacienteIntegrationTest {
     @Order(12)
     void testQuandoAtualizarParcial_DeveAtualizarOCampoEspecificado_ERetornarOPacienteAtualizadoComOStatusCode200() {
         final int statusCode200 = 200;
-        final String codigoExistente = "7ac6865b-397d-4038-8fa8-36855b5de619";
+        final String codigoExistente = "fc031157-a74c-4505-ab99-31384a6b1352";
         final String nomeCampoParaSerAtualizadoAtualizacao = "Severino Manoel dos Santos";
         final JSONObject pacientePatch = new JSONObject();
         pacientePatch.put("codigo", codigoExistente);
@@ -520,7 +520,7 @@ public class PacienteIntegrationTest {
     @Order(15)
     void testQuandoAtualizarPorCompletoPutComCodigoValido_DeveRetornarPacienteAtualizado_EStatusCode200() {
         final int statusCode200 = 200;
-        final String codigoValido = "7ac6865b-397d-4038-8fa8-36855b5de619";
+        final String codigoValido = "fc031157-a74c-4505-ab99-31384a6b1352";
 
 
         final JSONObject pacientePutCodigoValido = new JSONObject(Map.of(

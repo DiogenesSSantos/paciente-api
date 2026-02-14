@@ -1,0 +1,39 @@
+version: '3.9'
+services:
+  db:
+    image: mysql:8.0.29
+    restart: always
+    environment:
+      TZ: America/Sao_Paulo
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: admin123
+      MYSQL_DATABASE: rest_with_spring_boot_dio
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_TCP_PORT: 3308
+    ports:
+      - 3308:3308
+    expose:
+      - 3308
+    networks:
+      - dio-network
+  rest-api-paciente:
+    image: diogenesssantos/api-paciente
+    restart: always
+    build: .
+    working_dir: /rest-with-spring-boot-and-java-api-paciente
+    environment:
+      TZ: America/Sao_Paulo
+      SPRING.DATASOURCE.URL: jdbc:mysql://db:3308/rest_with_spring_boot_dio?useTimezone=true&serverTimezone=UTC
+      SPRING.DATASOURCE.USERNAME: root
+      SPRING.DATASOURCE.PASSWORD: admin123
+    ports:
+      - 80:80
+    command: mvn spring-boot:run
+    depends_on:
+      - db
+    networks:
+      - dio-network
+networks:
+  dio-network:
+    driver: bridge

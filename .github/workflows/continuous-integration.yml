@@ -1,1 +1,66 @@
+name: Continuous Integration with Github Actions
 
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2.0.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+          cache: maven
+
+      - name: Build Application JAR
+        working-directory: .
+        run: mvn clean package
+
+      - name: Docker Compose Build
+        working-directory: .
+        run: docker compose build
+
+      - name: Push to Docker Hub Container Registry
+        run: |
+          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+          
+          docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+          docker push ${{ secrets.IMAGE_NAME }}:latest
+
+      - name: Azure Container Registry Login
+        uses: Azure/docker-login@v1
+        with:
+          username: ${{ secrets.AZ_DOCKER_USERNAME }}
+          password: ${{ secrets.AZ_DOCKER_PASSWORD }}
+          login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Push Docker Images to Azure Container Registry
+        run: |
+          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:latest
+          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:latest
+          
+          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+
+      - name: Azure Login
+        uses: Azure/login@v1.4.6
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure WebApp Container - Application Deployment
+        uses: Azure/webapps-deploy@v2.2.10
+        with:
+          app-name: erudio-api-server
+          images: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/rest-with-spring-boot-erudio:${{ github.run_id }}
