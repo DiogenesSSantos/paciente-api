@@ -63,5 +63,5 @@ jobs:
       - name: Azure WebApp Container - Application Deployment
         uses: Azure/webapps-deploy@v2.2.10
         with:
-          app-name: paciente-api-server
+          app-name: api-service-paciente
           images: docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
