@@ -63,5 +63,5 @@ jobs:
       - name: Azure WebApp Container - Application Deployment
         uses: Azure/webapps-deploy@v2.2.10
         with:
-          app-name: erudio-api-server
-          images: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/rest-with-spring-boot-erudio:${{ github.run_id }}
+          app-name: paciente-api-server
+          images: docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
