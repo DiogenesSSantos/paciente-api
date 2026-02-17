@@ -7,6 +7,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+      DEPLOYMENT_NAME: ${{ secrets.DEPLOYMENT_NAME }}
+      CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,10 +36,10 @@ jobs:
 
       - name: Tag and push images
         run: |
-          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
-          docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
-          docker push ${{ secrets.IMAGE_NAME }}:latest
-
+          TAG=${{ github.run_id }}
+          docker tag "${{ secrets.IMAGE_NAME }}:latest" "${{ secrets.IMAGE_NAME }}:${TAG}"
+          docker push "${{ secrets.IMAGE_NAME }}:${TAG}"
+          docker push "${{ secrets.IMAGE_NAME }}:latest"
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v0.1.7
@@ -45,12 +49,136 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
+            TAG=${{ github.run_id }}
+            IMAGE="${{ secrets.IMAGE_NAME }}"
+            DEPLOYMENT="${{ secrets.DEPLOYMENT_NAME }}"
+            CONTAINER="${{ secrets.CONTAINER_NAME }}"
+
+            echo "Logging into Docker Hub"
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-            docker pull "${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" || true
+            echo "Pulling image ${IMAGE}:${TAG} on the VPS (best-effort)"
+            docker pull "${IMAGE}:${TAG}" || true
 
-            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINERS_NAME }}"="${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" -n default
+            # --- criar/atualizar Secret com variáveis do DB (valores vindos do GitHub Secrets)
+            # nomes dos secrets do GitHub esperados: DB_URL, DB_USER, DB_PASS, opcional SERVER_PORT
+            echo "Creating/updating Kubernetes Secret api-paciente-config"
+            kubectl create secret generic api-paciente-config \
+              --from-literal=SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" \
+              --from-literal=SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USER }}" \
+              --from-literal=SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASS }}" \
+              --dry-run=client -o yaml | kubectl apply -f -
 
-            kubectl rollout status deployment/"${{ secrets.DEPLOYMENT_NAME }}" -n default
+            # --- opcional: garantir que o deployment injete o secret via envFrom
+            # substitua "api-paciente" abaixo pelo nome real do container se for diferente
+            kubectl patch deployment/"${DEPLOYMENT}" -n default --type='strategic' -p '{
+              "spec":{"template":{"spec":{"containers":[{"name":"${CONTAINER}","envFrom":[{"secretRef":{"name":"api-paciente-config"}}]}]}}}}' || true
+
+            # atualizar a imagem do deployment (formato correto)
+            echo "Updating deployment ${DEPLOYMENT} container ${CONTAINER} -> ${IMAGE}:${TAG}"
+            kubectl set image deployment/"${DEPLOYMENT}" "${CONTAINER}"="${IMAGE}:${TAG}" -n default
+
+            # aguardar rollout
+            kubectl rollout status deployment/"${DEPLOYMENT}" -n default
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#name: CI CD via SSH
+#
+#on:
+#  push:
+#    branches: [ "main", "master" ]
+#
+#jobs:
+#  build-and-deploy:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v2
+#        with:
+#          username: ${{ secrets.DOCKER_USERNAME }}
+#          password: ${{ secrets.DOCKER_PASSWORD }}
+#
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '21'
+#          distribution: 'adopt'
+#          cache: maven
+#
+#      - name: Build Application JAR
+#        run: mvn clean package -DskipTests
+#
+#      - name: Docker Compose Build
+#        run: docker compose build
+#
+#      - name: Tag and push images
+#        run: |
+#          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+#          docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+#          docker push ${{ secrets.IMAGE_NAME }}:latest
+#
+#
+#      - name: Deploy on VPS via SSH
+#        uses: appleboy/ssh-action@v0.1.7
+#        with:
+#          host: ${{ secrets.VPS_HOST }}
+#          username: ${{ secrets.VPS_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          port: 22
+#          script: |
+#            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+#
+#            docker pull "${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" || true
+#
+#            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINERS_NAME }}"="${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" -n default
+#
+#            kubectl rollout status deployment/"${{ secrets.DEPLOYMENT_NAME }}" -n default
+#
+#
