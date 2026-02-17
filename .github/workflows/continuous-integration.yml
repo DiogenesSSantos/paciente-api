@@ -40,16 +40,24 @@ jobs:
           docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
           docker push ${{ secrets.IMAGE_NAME }}:latest
 
-      - name: Configure kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
 
-      - name: Update Kubernetes Deployment image
-        run: | 
-          kubectl set image deployment {{ secrets.DEPLOYMENT_NAME }} {{ secrets.CONTAINERS_NAME }}=${{ secrets.IMAGE_NAME }}:${{ github.run_id }} -n default 
-          kubectl rollout status deployment/my-deployment -n default    
+      - name: Deploy via SSH on VPS
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            kubectl set image deployment {{ secrets.DEPLOYMENT_NAME }} {{ secrets.CONTAINERS_NAME }}=${{ secrets.IMAGE_NAME }}:${{ github.run_id }} -n default 
+            kubectl rollout status deployment/my-deployment -n default
+      
+
+#      - name: Configure kubeconfig
+#        run: |
+#          mkdir -p $HOME/.kube
+#          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > $HOME/.kube/config
+#          chmod 600 $HOME/.kube/config
+
 
 #      - name: Azure Container Registry Login
 #        uses: Azure/docker-login@v1
