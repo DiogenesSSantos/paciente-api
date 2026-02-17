@@ -52,7 +52,7 @@ jobs:
             docker pull "${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" || true
 
             # formato CORRETO: kubectl set image deployment/<deployment-name> <container-name>=<image:tag>
-            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINER_NAME }}"="${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" -n default
+            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINERS_NAME }}"="${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" -n default
 
             # aguardar rollout
             kubectl rollout status deployment/"${{ secrets.DEPLOYMENT_NAME }}" -n default
