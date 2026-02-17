@@ -45,7 +45,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
           script: |
             set -euo pipefail
             TAG=${{ github.sha }}
