@@ -43,7 +43,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          known_hosts: ${{ secrets.KNOWN_HOSTS }}
           script: |
             # login no Docker Hub (necessário se a VPS precisa puxar imagem privada)
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
