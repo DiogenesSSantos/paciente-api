@@ -32,9 +32,8 @@ jobs:
 
       - name: Tag and push images
         run: |
-          TAG=${{ github.sha }}
-          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${TAG}
-          docker push ${{ secrets.IMAGE_NAME }}:${TAG}
+          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
+          docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
           docker push ${{ secrets.IMAGE_NAME }}:latest
 
 
@@ -46,17 +45,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            set -euo pipefail
-            TAG=${{ github.sha }}
-
             # login no Docker Hub (necessário se a VPS precisa puxar imagem privada)
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
             # pull da imagem com tag imutável
-            docker pull "${{ secrets.IMAGE_NAME }}:${TAG}" || true
+            docker pull "${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" || true
 
             # formato CORRETO: kubectl set image deployment/<deployment-name> <container-name>=<image:tag>
-            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINER_NAME }}"="${{ secrets.IMAGE_NAME }}:${TAG}" -n default
+            kubectl set image deployment/"${{ secrets.DEPLOYMENT_NAME }}" "${{ secrets.CONTAINER_NAME }}"="${{ secrets.IMAGE_NAME }}:${{ github.run_id }}" -n default
 
             # aguardar rollout
             kubectl rollout status deployment/"${{ secrets.DEPLOYMENT_NAME }}" -n default
