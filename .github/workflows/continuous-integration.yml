@@ -33,9 +33,10 @@ jobs:
       - name: Tag and push images
         run: |
           TAG=${{ github.sha }}
-          docker tag "${IMAGE_NAME}:latest" "${IMAGE_NAME}:${TAG}"
-          docker push "${IMAGE_NAME}:${TAG}"
-          docker push "${IMAGE_NAME}:latest"
+          docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${TAG}
+          docker push ${{ secrets.IMAGE_NAME }}:${TAG}
+          docker push ${{ secrets.IMAGE_NAME }}:latest
+
 
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v0.1.7
