@@ -1,19 +1,18 @@
-name: Continuous Integration with Github Actions
+name: CI CD via SSH
 
 on:
   push:
-    branches:
-      - main
-      - master
-jobs:
-  build:
-    runs-on: ubuntu-latest
+    branches: [ "main", "master" ]
 
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2.0.0
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -26,39 +25,36 @@ jobs:
           cache: maven
 
       - name: Build Application JAR
-        working-directory: .
         run: mvn clean package -DskipTests
 
       - name: Docker Compose Build
-        working-directory: .
         run: docker compose build
 
-      - name: Push to Docker Hub Container Registry
+      - name: Tag and push images
         run: |
           docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
-          
           docker push ${{ secrets.IMAGE_NAME }}:${{ github.run_id }}
           docker push ${{ secrets.IMAGE_NAME }}:latest
 
-
-      - name: Deploy via SSH on VPS
+      - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
           script: |
-            # opcional: login no Docker Hub na VPS (necessário se a imagem for privada)
+            # login no Docker Hub (necessário se a VPS precisa puxar imagem privada)
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            
-            # puxa a imagem com a tag que você criou no job anterior
+
+            # pull da imagem com tag imutável
             docker pull ${{ secrets.IMAGE_NAME }}:${{ github.run_id }} || true
-            
-            # atualiza a imagem do deployment (use o nome exato do deployment e do container)
-            kubectl set image deployment ${{ secrets.DEPLOYMENT_NAME }} ${{ secrets.CONTAINER_NAME }}=${{ secrets.IMAGE_NAME }}:${{ github.run_id }} -n default
-            
-            # espera o rollout do deployment correto
+
+            # atualizar o deployment para a tag específica
+            kubectl set image deployment/${{ secrets.DEPLOYMENT_NAME }} ${{ secrets.CONTAINER_NAME }}=${{ secrets.IMAGE_NAME }}:${{ github.run_id }} -n default
+
+            # aguardar rollout
             kubectl rollout status deployment/${{ secrets.DEPLOYMENT_NAME }} -n default
 
 
