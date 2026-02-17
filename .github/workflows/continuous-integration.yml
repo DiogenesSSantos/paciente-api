@@ -73,8 +73,7 @@ jobs:
             # substitua "api-paciente" abaixo pelo nome real do container se for diferente
             kubectl patch deployment/"${DEPLOYMENT}" -n default --type='strategic' -p '{
               "spec":{"template":{"spec":{"containers":[{"name":"${CONTAINER}","envFrom":[{"secretRef":{"name":"api-paciente-config"}}]}]}}}}' || true
-
-            # atualizar a imagem do deployment (formato correto)
+           
             echo "Updating deployment ${DEPLOYMENT} container ${CONTAINER} -> ${IMAGE}:${TAG}"
             kubectl set image deployment/"${DEPLOYMENT}" "${CONTAINER}"="${IMAGE}:${TAG}" -n default
 

@@ -25,7 +25,7 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI config() {
         return new OpenAPI().info(
-                        new Info().title("Api paciente CI and CD 1.0.7 ofuscando as variavel de ambiente e injetando via actions.")
+                        new Info().title("Api paciente CI and CD 1.0.8 ofuscando as variavel injeção automatica")
                                 .description("Api-Rest para consumo e registro de dados, " +
                                         "utilizado para um serviço de automatização de mensagem para marcações e " +
                                         "consulta dos pacientes da rede publica de saúde de Vitória de Santo Antão.")
