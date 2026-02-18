@@ -60,17 +60,14 @@ jobs:
             echo "Pulling image ${IMAGE}:${TAG} on the VPS (best-effort)"
             docker pull "${IMAGE}:${TAG}" || true
 
-            # --- criar/atualizar Secret com variáveis do DB (valores vindos do GitHub Secrets)
-            # nomes dos secrets do GitHub esperados: DB_URL, DB_USER, DB_PASS, opcional SERVER_PORT
-            echo "Creating/updating Kubernetes Secret api-paciente-config"
+            
             kubectl create secret generic api-paciente-config \
               --from-literal=SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" \
               --from-literal=SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USER }}" \
               --from-literal=SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASS }}" \
               --dry-run=client -o yaml | kubectl apply -f -
 
-            # --- opcional: garantir que o deployment injete o secret via envFrom
-            # substitua "api-paciente" abaixo pelo nome real do container se for diferente
+        
             kubectl patch deployment/"${DEPLOYMENT}" -n default --type='strategic' -p '{
               "spec":{"template":{"spec":{"containers":[{"name":"${CONTAINER}","envFrom":[{"secretRef":{"name":"api-paciente-config"}}]}]}}}}' || true
            
