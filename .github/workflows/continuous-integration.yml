@@ -41,6 +41,8 @@ jobs:
           docker push "${{ secrets.IMAGE_NAME }}:${TAG}"
           docker push "${{ secrets.IMAGE_NAME }}:latest"
 
+
+
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v0.1.7
         with:

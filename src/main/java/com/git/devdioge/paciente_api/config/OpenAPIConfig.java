@@ -25,7 +25,7 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI config() {
         return new OpenAPI().info(
-                        new Info().title("Api paciente CI and CD 1.0.9 corrigindo o deployment e url")
+                        new Info().title("Api paciente CI and CD 2.0.0 corrigindo o deployment e url")
                                 .description("Api-Rest para consumo e registro de dados, " +
                                         "utilizado para um serviço de automatização de mensagem para marcações e " +
                                         "consulta dos pacientes da rede publica de saúde de Vitória de Santo Antão.")
