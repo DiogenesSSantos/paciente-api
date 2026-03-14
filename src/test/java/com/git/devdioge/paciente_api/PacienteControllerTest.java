@@ -104,8 +104,9 @@ public class PacienteControllerTest {
 
         ResultActions response = mockMvc.perform(get("/pacientes"));
         String responseBody = response.andReturn().getResponse().getContentAsString();
-        List<PacienteResponseDTO> listpacienteResponseDTO = mapper.readValue(responseBody, new TypeReference<List<PacienteResponseDTO>>() {
-        });
+        List<PacienteResponseDTO> listpacienteResponseDTO = mapper.readValue(responseBody,
+                new TypeReference<>() {
+                });
 
 
         response.andDo(print())
